@@ -6,12 +6,18 @@ import { UsuarioEntidade } from './interface/usuario.entidade';
 
 @Controller('usuario')
 export class UsuarioController {
+  constructor(private readonly usuarioService: UsuarioService) {}
+
   @Get()
   async listarUsuarios(): Promise<UsuarioEntidade[]> {
     return this.usuarioService.buscarTodosOsUsuarios();
   }
 
-  constructor(private readonly usuarioService: UsuarioService) {}
+  @Get(':id')
+  async buscarUsuarioPorId(@Param('id') id: number): Promise<UsuarioEntidade> {
+    return this.usuarioService.buscarUsuarioPorId(id);
+  }
+
   @Post()
   async criarUsuario(
     @Body() criarUsuario: CriarUsuarioDto,
@@ -24,9 +30,6 @@ export class UsuarioController {
     @Param('id') id: number,
     @Body() editarUsuario: EditarUsuarioDto,
   ) {
-    return {
-      ...editarUsuario,
-      password: undefined,
-    };
+    return this.usuarioService.editarUsuario(id, editarUsuario);
   }
 }
