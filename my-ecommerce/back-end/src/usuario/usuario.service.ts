@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsuarioEntidade } from './interface/usuario.entidade';
 import { CriarUsuarioDto } from './dto/criarUsuario.dto';
 import { hash } from 'bcrypt';
@@ -22,6 +22,7 @@ export class UsuarioService {
     return this.usuarioRepositorio.save({
       ...criarUsuarioDto,
       password: senhaEncriptada,
+      typeUsuario: 1,
     });
   }
 
@@ -30,15 +31,42 @@ export class UsuarioService {
   }
 
   async buscarUsuarioPorId(id: number): Promise<UsuarioEntidade> {
-    return this.usuarioRepositorio.findOneBy({ id: id });
+    const usuario = await this.usuarioRepositorio.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado!');
+    }
+    return usuario;
   }
 
-  async editarUsuario(id: number, editarUsuario: EditarUsuarioDto) {
+  async editarUsuario(
+    id: number,
+    editarUsuario: EditarUsuarioDto,
+  ): Promise<UsuarioEntidade> {
+    const usuario = await this.usuarioRepositorio.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado!');
+    }
+
     const saltOrRounds = 10;
     const senhaEncriptada = await hash(editarUsuario.password, saltOrRounds);
 
     editarUsuario.password = senhaEncriptada;
+    this.usuarioRepositorio.update(id, editarUsuario);
 
-    return this.usuarioRepositorio.update(id, editarUsuario);
+    return { id, ...editarUsuario, typeUsuario: 1 };
+  }
+
+  async deletarUsuario(id: number) {
+    this.usuarioRepositorio.delete(id);
   }
 }

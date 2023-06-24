@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CriarUsuarioDto } from './dto/criarUsuario.dto';
 import { EditarUsuarioDto } from './dto/editarUsuario.dto';
 import { UsuarioService } from './usuario.service';
@@ -29,7 +37,12 @@ export class UsuarioController {
   async editarUsuario(
     @Param('id') id: number,
     @Body() editarUsuario: EditarUsuarioDto,
-  ) {
+  ): Promise<UsuarioEntidade> {
     return this.usuarioService.editarUsuario(id, editarUsuario);
+  }
+
+  @Delete(':id')
+  async deletarUsuario(@Param('id') id: number) {
+    this.usuarioService.deletarUsuario(id);
   }
 }

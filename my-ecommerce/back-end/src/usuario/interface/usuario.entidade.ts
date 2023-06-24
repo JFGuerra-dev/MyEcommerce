@@ -14,4 +14,6 @@ export class UsuarioEntidade {
   cpf: string;
   @Column({ name: 'password', nullable: false })
   password: string;
+  @Column({ name: 'type_usuario', nullable: false })
+  typeUsuario: number;
 }
